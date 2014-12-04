@@ -35,3 +35,8 @@ func equals(tb testing.TB, exp, act interface{}) {
 		tb.FailNow()
 	}
 }
+
+func inspect(i interface{}) {
+	fmt.Printf("\033[32m%v\033[39m\n", i)
+	fmt.Printf("\033[32m%#v\033[39m\n", i)
+}

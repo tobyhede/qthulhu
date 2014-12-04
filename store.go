@@ -51,19 +51,13 @@ func NewStore(path string) *Store {
 
 func (s *Store) Put(k, v string) error {
 	err := s.db.Put(s.wopts, []byte(k), []byte(v))
-	if err != nil {
-		// errors, how do they even!?
-	}
-	return nil
+	return err
 }
 
-func (s *Store) Get(k string) string {
+func (s *Store) Get(k string) (string, error) {
 	v, err := s.db.Get(s.ropts, []byte(k))
-
-	if err != nil {
-		// errors, how do they even!?
-	}
-	return string(v)
+	// inspect(string(v))
+	return string(v), err
 }
 
 func (s *Store) Close() {

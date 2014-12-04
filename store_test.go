@@ -13,12 +13,11 @@ func TestStore(t *testing.T) {
 	s := NewStore(p)
 	defer s.Close()
 
-	fmt.Println(p)
-
 	err := s.Put("hello", "world")
 	ok(t, err)
 
-	v := s.Get("hello")
+	v, err := s.Get("hello")
+	ok(t, err)
 	equals(t, v, "world")
 }
 
