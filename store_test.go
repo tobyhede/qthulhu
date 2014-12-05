@@ -9,8 +9,7 @@ import (
 )
 
 func TestStore(t *testing.T) {
-	p := tmpPath()
-	s := NewStore(p)
+	s := NewStore(dbPath())
 	defer s.Close()
 
 	err := s.Put("hello", "world")
@@ -22,10 +21,27 @@ func TestStore(t *testing.T) {
 }
 
 func TestIteration(t *testing.T) {
+	s := NewStore(dbPath())
+	defer s.Close()
 
+	count := 100
+
+	for i := 0; i < count; i++ {
+		k := fmt.Sprintf("%019d", i)
+		v := fmt.Sprintf("%v", i)
+		err := s.Put(k, v)
+		ok(t, err)
+	}
+
+	k := []byte("0000000000000000080")
+	it := s.Iterator()
+	defer it.Close()
+	for it.Seek(k); it.Valid(); it.Next() {
+		fmt.Printf("%s:%s\n", it.Key(), it.Value())
+	}
 }
 
-func tmpPath() string {
+func dbPath() string {
 	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
 	return filepath.Join(os.TempDir(), f)
 }

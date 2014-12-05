@@ -32,7 +32,7 @@ func NewStore(path string) *Store {
 
 	s.ropts = gorocks.NewReadOptions()
 	s.ropts.SetVerifyChecksums(true)
-	s.ropts.SetFillCache(false)
+	s.ropts.SetFillCache(true)
 
 	s.wopts = gorocks.NewWriteOptions()
 	s.wopts.SetSync(false)
@@ -58,6 +58,11 @@ func (s *Store) Get(k string) (string, error) {
 	v, err := s.db.Get(s.ropts, []byte(k))
 	// inspect(string(v))
 	return string(v), err
+}
+
+func (s *Store) Iterator() *gorocks.Iterator {
+	s.ropts.SetFillCache(false)
+	return s.db.NewIterator(s.ropts)
 }
 
 func (s *Store) Close() {
