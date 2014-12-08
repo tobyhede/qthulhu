@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	DataPath string
+	DataDir string
 }
 
 func DefaultConfig() *Config {
@@ -21,7 +21,7 @@ func LoadConfig(path string) *Config {
 
 func setDefaultConfig(conf *Config) *Config {
 	def := DefaultConfig()
-	conf.DataPath = def.DataPath
+	conf.DataDir = def.DataDir
 	return conf
 }
 

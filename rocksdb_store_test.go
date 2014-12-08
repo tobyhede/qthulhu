@@ -8,8 +8,8 @@ import (
 	"testing"
 )
 
-func TestStore(t *testing.T) {
-	s := NewStore(dbPath())
+func TestRocksDBStore(t *testing.T) {
+	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
 	err := s.Put("hello", "world")
@@ -20,8 +20,8 @@ func TestStore(t *testing.T) {
 	equals(t, v, "world")
 }
 
-func TestIteration(t *testing.T) {
-	s := NewStore(dbPath())
+func TestRocksDBIteration(t *testing.T) {
+	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
 	count := 100

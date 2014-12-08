@@ -1,84 +1,51 @@
 package qthulhu
 
 // "github/tobyhede/gorocks"
-import (
-	"fmt"
 
-	"./../gorocks"
-)
-
-type Store struct {
-	db    *gorocks.DB
-	env   *gorocks.Env
-	cache *gorocks.Cache
-	opts  *gorocks.Options
-	ropts *gorocks.ReadOptions
-	wopts *gorocks.WriteOptions
-	topts *gorocks.TableOptions
-	path  string
+type QStore struct {
 }
 
-func NewStore(path string) *Store {
-	s := &Store{}
+// type StableStore interface {
+//     Set(key []byte, val []byte) error
+//     Get(key []byte) ([]byte, error)
 
-	s.path = path
-	s.env = gorocks.NewDefaultEnv()
-	s.cache = gorocks.NewLRUCache(1 << 20)
+//     SetUint64(key []byte, val uint64) error
+//     GetUint64(key []byte) (uint64, error)
+// }
 
-	s.opts = gorocks.NewOptions()
-	s.opts.SetEnv(s.env)
-	s.opts.SetCompression(gorocks.SnappyCompression)
-	s.opts.SetCreateIfMissing(true)
+// type SnapshotStore interface {
+//     // Create is used to begin a snapshot at a given index and term,
+//     // with the current peer set already encoded
+//     Create(index, term uint64, peers []byte) (SnapshotSink, error)
 
-	s.ropts = gorocks.NewReadOptions()
-	s.ropts.SetVerifyChecksums(true)
-	s.ropts.SetFillCache(true)
+//     // List is used to list the available snapshots in the store.
+//     // It should return then in descending order, with the highest index first.
+//     List() ([]*SnapshotMeta, error)
 
-	s.wopts = gorocks.NewWriteOptions()
-	s.wopts.SetSync(false)
+//     // Open takes a snapshot ID and provides a ReadCloser. Once close is
+//     // called it is assumed the snapshot is no longer needed.
+//     Open(id string) (*SnapshotMeta, io.ReadCloser, error)
+// }
 
-	s.topts = gorocks.NewTableOptions()
-	s.topts.SetCache(s.cache)
+// type LogStore interface {
+//     // Returns the first index written. 0 for no entries.
+//     FirstIndex() (uint64, error)
 
-	db, err := gorocks.Open(path, s.opts)
-	if err != nil {
-		fmt.Println("Open failed: %v", err)
-		panic("Open database failed")
-	}
-	s.db = db
-	return s
-}
+//     // Returns the last index written. 0 for no entries.
+//     LastIndex() (uint64, error)
 
-func (s *Store) Put(k, v string) error {
-	err := s.db.Put(s.wopts, []byte(k), []byte(v))
-	return err
-}
+//     // Gets a log entry at a given index
+//     GetLog(index uint64, log *Log) error
 
-func (s *Store) Get(k string) (string, error) {
-	v, err := s.db.Get(s.ropts, []byte(k))
-	// inspect(string(v))
-	return string(v), err
-}
+//     // Stores a log entry
+//     StoreLog(log *Log) error
 
-func (s *Store) Iterator() *gorocks.Iterator {
-	s.ropts.SetFillCache(false)
-	return s.db.NewIterator(s.ropts)
-}
+//     // Stores multiple log entries
+//     StoreLogs(logs []*Log) error
 
-func (s *Store) Close() {
-	s.env.Close()
-	s.cache.Close()
-	s.opts.Close()
-	s.ropts.Close()
-	s.wopts.Close()
-	s.topts.Close()
-	s.db.Close()
-}
-
-func (s *Store) Delete() {
-	err := gorocks.DestroyDatabase(s.path, s.opts)
-	if err != nil {
-		// t.Errorf("Unable to remove database directory: %s", dirPath)
-	}
-	// err := os.RemoveAll(s.path)
+//     // Deletes a range of log entries. The range is inclusive.
+//     DeleteRange(min, max uint64) error
+// }
+func (s *QStore) FirstIndex() (uint64, error) {
+	return 0, nil
 }
