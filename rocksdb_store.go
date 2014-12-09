@@ -2,6 +2,7 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 
@@ -86,10 +87,12 @@ func (s *RocksDBStore) Delete() {
 
 func iToBA(i uint64) []byte {
 	b := make([]byte, 8)
-	binary.LittleEndian.PutUint64(b, i)
+	binary.BigEndian.PutUint64(b, i)
 	return b
 }
 
-func baToI(b []byte) uint64 {
-	// return *(*uint64)(unsafe.Pointer(&b[0]))
+func baToI(b []byte) (ret uint64) {
+	buf := bytes.NewReader(b)
+	binary.Read(buf, binary.BigEndian, &ret)
+	return
 }

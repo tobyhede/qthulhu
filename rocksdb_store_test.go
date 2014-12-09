@@ -6,7 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
 
 func TestRocksDBStore(t *testing.T) {
 	s := NewRocksDBStore(dbPath())
@@ -26,24 +31,31 @@ func TestRocksDBIteration(t *testing.T) {
 	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
-	count := 1000
+	generate(t, s, 0, 500)
+	generate(t, s, 9999, 500)
 
-	for i := 0; i < count; i++ {
-		v := fmt.Sprintf("%v", i)
-		fmt.Println(uint64(i))
-		err := s.Put(uint64(i), v)
-		ok(t, err)
-	}
-
-	k := iToBA(80)
 	it := s.Iterator()
 	defer it.Close()
+
+	i := uint64(99)
+	k := iToBA(i)
 	for it.Seek(k); it.Valid(); it.Next() {
-		fmt.Printf("%d:%s\n", it.Key(), it.Value())
+		k := baToI(it.Key())
+		assert(t, i <= k, "I should be less than K")
+		i++
+		fmt.Printf("%d:%s\n", k, it.Value())
 	}
 }
 
 func dbPath() string {
 	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
 	return filepath.Join(os.TempDir(), f)
+}
+
+func generate(t *testing.T, s *RocksDBStore, start, count int) {
+	for i := start; i < (start + count); i++ {
+		v := fmt.Sprintf("%v", i)
+		err := s.Put(uint64(i), v)
+		ok(t, err)
+	}
 }
