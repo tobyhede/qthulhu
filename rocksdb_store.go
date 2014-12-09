@@ -2,6 +2,7 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
+	"encoding/binary"
 	"fmt"
 
 	"./../gorocks"
@@ -49,13 +50,13 @@ func NewRocksDBStore(path string) *RocksDBStore {
 	return s
 }
 
-func (s *RocksDBStore) Put(k, v string) error {
-	err := s.db.Put(s.wopts, []byte(k), []byte(v))
+func (s *RocksDBStore) Put(k uint64, v string) error {
+	err := s.db.Put(s.wopts, iToBA(k), []byte(v))
 	return err
 }
 
-func (s *RocksDBStore) Get(k string) (string, error) {
-	v, err := s.db.Get(s.ropts, []byte(k))
+func (s *RocksDBStore) Get(k uint64) (string, error) {
+	v, err := s.db.Get(s.ropts, iToBA(k))
 	// inspect(string(v))
 	return string(v), err
 }
@@ -81,4 +82,14 @@ func (s *RocksDBStore) Delete() {
 		// t.Errorf("Unable to remove database directory: %s", dirPath)
 	}
 	// err := os.RemoveAll(s.path)
+}
+
+func iToBA(i uint64) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, i)
+	return b
+}
+
+func baToI(b []byte) uint64 {
+	// return *(*uint64)(unsafe.Pointer(&b[0]))
 }

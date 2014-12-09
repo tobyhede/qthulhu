@@ -12,32 +12,34 @@ func TestRocksDBStore(t *testing.T) {
 	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
-	err := s.Put("hello", "world")
+	k := uint64(9223372036854775807)
+	err := s.Put(k, "world")
 	ok(t, err)
 
-	v, err := s.Get("hello")
+	v, err := s.Get(k)
 	ok(t, err)
 	equals(t, v, "world")
 }
 
 func TestRocksDBIteration(t *testing.T) {
+
 	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
-	count := 100
+	count := 1000
 
 	for i := 0; i < count; i++ {
-		k := fmt.Sprintf("%019d", i)
 		v := fmt.Sprintf("%v", i)
-		err := s.Put(k, v)
+		fmt.Println(uint64(i))
+		err := s.Put(uint64(i), v)
 		ok(t, err)
 	}
 
-	k := []byte("0000000000000000080")
+	k := iToBA(80)
 	it := s.Iterator()
 	defer it.Close()
 	for it.Seek(k); it.Valid(); it.Next() {
-		fmt.Printf("%s:%s\n", it.Key(), it.Value())
+		fmt.Printf("%d:%s\n", it.Key(), it.Value())
 	}
 }
 
