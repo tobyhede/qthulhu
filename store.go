@@ -29,7 +29,12 @@ func (s *PartitionStore) LastIndex() (uint64, error) {
 }
 
 func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
-	return nil
+	v, err := s.rstore.Get(index)
+	if err != nil {
+		//something
+	}
+	log.Data = v
+	return err
 }
 
 func (s *PartitionStore) StoreLog(log *raft.Log) error {
