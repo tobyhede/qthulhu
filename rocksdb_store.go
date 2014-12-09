@@ -2,12 +2,18 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 
+	"github.com/hashicorp/raft"
+
 	"./../gorocks"
 )
+
+type KV struct {
+	Key   uint64
+	Value []byte
+}
 
 type RocksDBStore struct {
 	db    *gorocks.DB
@@ -51,15 +57,27 @@ func NewRocksDBStore(path string) *RocksDBStore {
 	return s
 }
 
-func (s *RocksDBStore) Put(k uint64, v string) error {
-	err := s.db.Put(s.wopts, iToBA(k), []byte(v))
+func (s *RocksDBStore) Put(k uint64, v []byte) error {
+	err := s.db.Put(s.wopts, uint64ToBytes(k), v)
 	return err
 }
 
-func (s *RocksDBStore) Get(k uint64) (string, error) {
-	v, err := s.db.Get(s.ropts, iToBA(k))
+func (s *RocksDBStore) PutBatch(logs []*raft.Log) error {
+	wb := gorocks.NewWriteBatch()
+	defer wb.Close()
+	for _, l := range logs {
+		k := uint64ToBytes(l.Index)
+		wb.Put(k, l.Data)
+	}
+	err := s.db.Write(s.wopts, wb)
+
+	return err
+}
+
+func (s *RocksDBStore) Get(k uint64) ([]byte, error) {
+	v, err := s.db.Get(s.ropts, uint64ToBytes(k))
 	// inspect(string(v))
-	return string(v), err
+	return v, err
 }
 
 func (s *RocksDBStore) Iterator() *gorocks.Iterator {
@@ -67,7 +85,23 @@ func (s *RocksDBStore) Iterator() *gorocks.Iterator {
 	return s.db.NewIterator(s.ropts)
 }
 
-func (s *RocksDBStore) Close() {
+func (s *RocksDBStore) FirstKey() (uint64, error) {
+	it := s.Iterator()
+
+	defer it.Close()
+	it.SeekToFirst()
+	return bytesToUint64(it.Key()), nil
+}
+
+func (s *RocksDBStore) LastKey() (uint64, error) {
+	it := s.Iterator()
+
+	defer it.Close()
+	it.SeekToLast()
+	return bytesToUint64(it.Key()), nil
+}
+
+func (s *RocksDBStore) Close() error {
 	s.env.Close()
 	s.cache.Close()
 	s.opts.Close()
@@ -75,6 +109,7 @@ func (s *RocksDBStore) Close() {
 	s.wopts.Close()
 	s.topts.Close()
 	s.db.Close()
+	return nil
 }
 
 func (s *RocksDBStore) Delete() {
@@ -85,14 +120,12 @@ func (s *RocksDBStore) Delete() {
 	// err := os.RemoveAll(s.path)
 }
 
-func iToBA(i uint64) []byte {
+func uint64ToBytes(i uint64) []byte {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, i)
 	return b
 }
 
-func baToI(b []byte) (ret uint64) {
-	buf := bytes.NewReader(b)
-	binary.Read(buf, binary.BigEndian, &ret)
-	return
+func bytesToUint64(b []byte) uint64 {
+	return binary.BigEndian.Uint64(b)
 }

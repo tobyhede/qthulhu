@@ -1,8 +1,48 @@
 package qthulhu
 
-// "github/tobyhede/gorocks"
+import "github.com/hashicorp/raft"
 
-type QStore struct {
+type PartitionStore struct {
+	path   string
+	rstore *RocksDBStore
+}
+
+func NewPartitionStore(path string) (*PartitionStore, error) {
+	rstore := NewRocksDBStore(path)
+	return &PartitionStore{rstore: rstore}, nil
+}
+
+// func (m *PartitionStore) initialize() error {
+// }
+
+func (s *PartitionStore) Close() error {
+	s.rstore.Close()
+	return nil
+}
+
+func (s *PartitionStore) FirstIndex() (uint64, error) {
+	return s.rstore.FirstKey()
+}
+
+func (s *PartitionStore) LastIndex() (uint64, error) {
+	return s.rstore.LastKey()
+}
+
+func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
+	return nil
+}
+
+func (s *PartitionStore) StoreLog(log *raft.Log) error {
+	return s.StoreLogs([]*raft.Log{log})
+}
+
+func (s *PartitionStore) StoreLogs(logs []*raft.Log) error {
+	s.rstore.PutBatch(logs)
+	return nil
+}
+
+func (s *PartitionStore) DeleteRange(min, max uint64) error {
+	return nil
 }
 
 // type StableStore interface {
@@ -35,17 +75,14 @@ type QStore struct {
 //     LastIndex() (uint64, error)
 
 //     // Gets a log entry at a given index
-//     GetLog(index uint64, log *Log) error
+//     GetLog(index uint64, log *raft.Log) error
 
 //     // Stores a log entry
-//     StoreLog(log *Log) error
+//     StoreLog(log *raft.Log) error
 
 //     // Stores multiple log entries
-//     StoreLogs(logs []*Log) error
+//     StoreLogs(logs []*raft.Log) error
 
 //     // Deletes a range of log entries. The range is inclusive.
 //     DeleteRange(min, max uint64) error
 // }
-func (s *QStore) FirstIndex() (uint64, error) {
-	return 0, nil
-}

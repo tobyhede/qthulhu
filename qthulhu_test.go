@@ -2,11 +2,18 @@ package qthulhu
 
 import (
 	"fmt"
+	"math/rand"
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
 )
+
+func dbPath() string {
+	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
+	return filepath.Join(os.TempDir(), f)
+}
 
 // Test functions From https://github.com/benbjohnson/testing
 // assert fails the test if the condition is false.

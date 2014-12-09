@@ -3,8 +3,7 @@ package qthulhu
 import (
 	"fmt"
 	"math/rand"
-	"os"
-	"path/filepath"
+
 	"testing"
 	"time"
 )
@@ -18,12 +17,12 @@ func TestRocksDBStore(t *testing.T) {
 	defer s.Close()
 
 	k := uint64(9223372036854775807)
-	err := s.Put(k, "world")
+	err := s.Put(k, []byte("world"))
 	ok(t, err)
 
 	v, err := s.Get(k)
 	ok(t, err)
-	equals(t, v, "world")
+	equals(t, string(v), "world")
 }
 
 func TestRocksDBIteration(t *testing.T) {
@@ -38,24 +37,22 @@ func TestRocksDBIteration(t *testing.T) {
 	defer it.Close()
 
 	i := uint64(99)
-	k := iToBA(i)
-	for it.Seek(k); it.Valid(); it.Next() {
-		k := baToI(it.Key())
+	for it.Seek(uint64ToBytes(i)); it.Valid(); it.Next() {
+		k := bytesToUint64(it.Key())
 		assert(t, i <= k, "I should be less than K")
+		// fmt.Printf("%d:%s\n", k, it.Value())
 		i++
-		fmt.Printf("%d:%s\n", k, it.Value())
 	}
-}
 
-func dbPath() string {
-	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
-	return filepath.Join(os.TempDir(), f)
+	k, err := s.LastKey()
+	ok(t, err)
+	equals(t, int(k), 9999+500-1)
 }
 
 func generate(t *testing.T, s *RocksDBStore, start, count int) {
 	for i := start; i < (start + count); i++ {
 		v := fmt.Sprintf("%v", i)
-		err := s.Put(uint64(i), v)
+		err := s.Put(uint64(i), []byte(v))
 		ok(t, err)
 	}
 }
