@@ -31,7 +31,7 @@ func (s *PartitionStore) LastIndex() (uint64, error) {
 func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
 	v, err := s.rstore.Get(index)
 	if err != nil {
-		//something
+		return err
 	}
 	log.Data = v
 	return err
@@ -50,13 +50,26 @@ func (s *PartitionStore) DeleteRange(min, max uint64) error {
 	return nil
 }
 
-// type StableStore interface {
-//     Set(key []byte, val []byte) error
-//     Get(key []byte) ([]byte, error)
+func (s *PartitionStore) Set(key []byte, val []byte) error {
+	err := s.rstore.Set(key, val)
+	return err
+}
 
-//     SetUint64(key []byte, val uint64) error
-//     GetUint64(key []byte) (uint64, error)
-// }
+func (s *PartitionStore) Get(key []byte) ([]byte, error) {
+	v, err := s.rstore.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	return v, err
+}
+
+func (s *PartitionStore) SetUint64(key []byte, val uint64) error {
+	return nil
+}
+
+func (s *PartitionStore) GetUint64(key []byte) (uint64, error) {
+	return 1, nil
+}
 
 // type SnapshotStore interface {
 //     // Create is used to begin a snapshot at a given index and term,

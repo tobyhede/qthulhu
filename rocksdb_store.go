@@ -2,7 +2,9 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
+	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"fmt"
 
 	"github.com/hashicorp/raft"
@@ -59,6 +61,11 @@ func NewRocksDBStore(path string) *RocksDBStore {
 
 func (s *RocksDBStore) Put(k uint64, v []byte) error {
 	err := s.db.Put(s.wopts, uint64ToBytes(k), v)
+	return err
+}
+
+func (s *RocksDBStore) Set(k, v []byte) error {
+	err := s.db.Put(s.wopts, k, v)
 	return err
 }
 
@@ -128,4 +135,15 @@ func uint64ToBytes(i uint64) []byte {
 
 func bytesToUint64(b []byte) uint64 {
 	return binary.BigEndian.Uint64(b)
+}
+
+func encode(log *raft.Log) ([]bytes, error) {
+	b := new(bytes.Buffer)
+	enc := gob.NewEncoder(b)
+
+	err := enc.Encode(log)
+	if err != nil {
+		return err
+	}
+	return b.Bytes(), nil
 }
