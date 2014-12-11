@@ -33,7 +33,7 @@ func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
 	if err != nil {
 		return err
 	}
-	log.Data = v
+	err = decode(v, &log)
 	return err
 }
 
@@ -42,8 +42,16 @@ func (s *PartitionStore) StoreLog(log *raft.Log) error {
 }
 
 func (s *PartitionStore) StoreLogs(logs []*raft.Log) error {
-	s.rstore.PutBatch(logs)
-	return nil
+	b := s.rstore.StartBatch()
+
+	for _, l := range logs {
+		k := uint64ToBytes(l.Index)
+		d, _ := encode(l)
+		b.Put(k, d)
+	}
+
+	err := s.rstore.WriteAndCloseBatch(b)
+	return err
 }
 
 func (s *PartitionStore) DeleteRange(min, max uint64) error {

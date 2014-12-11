@@ -4,8 +4,6 @@ package qthulhu
 import (
 	"fmt"
 
-	"github.com/hashicorp/raft"
-
 	"./../gorocks"
 )
 
@@ -61,15 +59,25 @@ func (s *RocksDBStore) Put(k, v []byte) error {
 	return err
 }
 
-func (s *RocksDBStore) PutBatch(logs []*raft.Log) error {
-	wb := gorocks.NewWriteBatch()
-	defer wb.Close()
-	for _, l := range logs {
-		k := uint64ToBytes(l.Index)
-		wb.Put(k, l.Data)
-	}
-	err := s.db.Write(s.wopts, wb)
+// func (s *RocksDBStore) PutBatch(logs []*raft.Log) error {
+// 	wb := gorocks.NewWriteBatch()
+// 	defer wb.Close()
+// 	for _, l := range logs {
+// 		k := uint64ToBytes(l.Index)
+// 		wb.Put(k, l.Data)
+// 	}
+// 	err := s.db.Write(s.wopts, wb)
 
+// 	return err
+// }
+
+func (s *RocksDBStore) StartBatch() *gorocks.WriteBatch {
+	return gorocks.NewWriteBatch()
+}
+
+func (s *RocksDBStore) WriteAndCloseBatch(b *gorocks.WriteBatch) error {
+	defer b.Close()
+	err := s.db.Write(s.wopts, b)
 	return err
 }
 
@@ -89,6 +97,7 @@ func (s *RocksDBStore) FirstKey() (uint64, error) {
 
 	defer it.Close()
 	it.SeekToFirst()
+	// inspect(it.Key())
 	return bytesToUint64(it.Key()), nil
 }
 

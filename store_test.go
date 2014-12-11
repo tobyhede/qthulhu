@@ -6,26 +6,58 @@ import (
 	"github.com/hashicorp/raft"
 )
 
+var k = uint64ToBytes(uint64(0))
+var v = []byte("helloworld")
+
 func TestPartitionStore(t *testing.T) {
 
+}
+
+func TestSetGet(t *testing.T) {
+	s, err := NewPartitionStore(dbPath())
+	ok(t, err)
+
+	err = s.Set(k, v)
+	ok(t, err)
+
+	d, err := s.Get(k)
+	ok(t, err)
+	equals(t, d, v)
 }
 
 func TestPartitionStoreFirstIndex(t *testing.T) {
 	s, err := NewPartitionStore(dbPath())
 	ok(t, err)
 	defer s.Close()
-	i, err := s.FirstIndex()
+
 	ok(t, err)
-	equals(t, i, uint64(0))
+
+	for i := 0; i < 5; i++ {
+		k = uint64ToBytes(uint64(i))
+		err = s.Set(k, v)
+		ok(t, err)
+
+		i, err := s.FirstIndex()
+		ok(t, err)
+		equals(t, i, uint64(0))
+	}
 }
 
 func TestPartitionStoreLastIndex(t *testing.T) {
 	s, err := NewPartitionStore(dbPath())
 	ok(t, err)
 	defer s.Close()
-	i, err := s.LastIndex()
-	ok(t, err)
-	equals(t, i, uint64(0))
+
+	for i := 0; i < 5; i++ {
+		k = uint64ToBytes(uint64(i))
+		err = s.Set(k, v)
+		ok(t, err)
+
+		idx, err := s.LastIndex()
+		ok(t, err)
+		equals(t, uint64(i), idx)
+	}
+
 }
 
 func TestPartitionStoreStoreLog(t *testing.T) {
