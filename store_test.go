@@ -60,7 +60,7 @@ func TestPartitionStoreLastIndex(t *testing.T) {
 
 }
 
-func TestPartitionStoreStoreLog(t *testing.T) {
+func TestPartitionStoreStoreGetLog(t *testing.T) {
 	s, err := NewPartitionStore(dbPath())
 	ok(t, err)
 	defer s.Close()
@@ -81,4 +81,11 @@ func TestPartitionStoreStoreLog(t *testing.T) {
 	i, err = s.LastIndex()
 	ok(t, err)
 	equals(t, i, uint64(1))
+
+	var getted raft.Log
+	err = s.GetLog(uint64(1), &getted)
+	ok(t, err)
+
+	// inspect(getted)
+	equals(t, getted.Index, uint64(1))
 }

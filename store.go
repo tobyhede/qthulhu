@@ -33,8 +33,7 @@ func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
 	if err != nil {
 		return err
 	}
-	err = decode(v, &log)
-	return err
+	return decode(v, log)
 }
 
 func (s *PartitionStore) StoreLog(log *raft.Log) error {

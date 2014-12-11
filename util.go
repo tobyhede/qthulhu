@@ -26,9 +26,7 @@ func encode(o interface{}) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func decode(b []byte, o interface{}) error {
-	buf := bytes.NewBuffer(b)
-	dec := gob.NewDecoder(buf)
-
-	return dec.Decode(o)
+func decode(b []byte, out interface{}) error {
+	dec := gob.NewDecoder(bytes.NewBuffer(b))
+	return dec.Decode(out)
 }
