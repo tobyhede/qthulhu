@@ -23,6 +23,10 @@ func TestRocksDBStore(t *testing.T) {
 	v, err := s.Get(k)
 	ok(t, err)
 	equals(t, string(v), "world")
+
+	v, err = s.Get([]byte("vtha"))
+	equals(t, len(v), 0)
+	equals(t, "Key Not Found", err.Error())
 }
 
 func TestRocksDBIteration(t *testing.T) {

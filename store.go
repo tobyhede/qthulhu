@@ -16,8 +16,7 @@ func NewPartitionStore(path string) (*PartitionStore, error) {
 // }
 
 func (s *PartitionStore) Close() error {
-	s.rstore.Close()
-	return nil
+	return s.rstore.Close()
 }
 
 func (s *PartitionStore) FirstIndex() (uint64, error) {
@@ -54,28 +53,31 @@ func (s *PartitionStore) StoreLogs(logs []*raft.Log) error {
 }
 
 func (s *PartitionStore) DeleteRange(min, max uint64) error {
-	return nil
+	b := s.rstore.StartBatch()
+
+	for i := min; i <= max; i++ {
+		k := uint64ToBytes(i)
+		b.Delete(k)
+	}
+
+	return s.rstore.WriteAndCloseBatch(b)
 }
 
 func (s *PartitionStore) Set(key []byte, val []byte) error {
-	err := s.rstore.Put(key, val)
-	return err
+	return s.rstore.Put(key, val)
 }
 
 func (s *PartitionStore) Get(key []byte) ([]byte, error) {
-	v, err := s.rstore.Get(key)
-	if err != nil {
-		return nil, err
-	}
-	return v, err
+	return s.rstore.Get(key)
 }
 
 func (s *PartitionStore) SetUint64(key []byte, val uint64) error {
-	return nil
+	return s.rstore.Put(key, uint64ToBytes(val))
 }
 
 func (s *PartitionStore) GetUint64(key []byte) (uint64, error) {
-	return 1, nil
+	v, err := s.rstore.Get(key)
+	return bytesToUint64(v), err
 }
 
 // type SnapshotStore interface {

@@ -59,18 +59,6 @@ func (s *RocksDBStore) Put(k, v []byte) error {
 	return err
 }
 
-// func (s *RocksDBStore) PutBatch(logs []*raft.Log) error {
-// 	wb := gorocks.NewWriteBatch()
-// 	defer wb.Close()
-// 	for _, l := range logs {
-// 		k := uint64ToBytes(l.Index)
-// 		wb.Put(k, l.Data)
-// 	}
-// 	err := s.db.Write(s.wopts, wb)
-
-// 	return err
-// }
-
 func (s *RocksDBStore) StartBatch() *gorocks.WriteBatch {
 	return gorocks.NewWriteBatch()
 }
@@ -83,7 +71,9 @@ func (s *RocksDBStore) WriteAndCloseBatch(b *gorocks.WriteBatch) error {
 
 func (s *RocksDBStore) Get(k []byte) ([]byte, error) {
 	v, err := s.db.Get(s.ropts, k)
-	// inspect(string(v))
+	if len(v) == 0 {
+		return nil, NewNotFoundError(k)
+	}
 	return v, err
 }
 
@@ -97,7 +87,6 @@ func (s *RocksDBStore) FirstKey() (uint64, error) {
 
 	defer it.Close()
 	it.SeekToFirst()
-	// inspect(it.Key())
 	return bytesToUint64(it.Key()), nil
 }
 
@@ -120,7 +109,7 @@ func (s *RocksDBStore) Close() error {
 	return nil
 }
 
-func (s *RocksDBStore) Delete() {
+func (s *RocksDBStore) Destroy() {
 	err := gorocks.DestroyDatabase(s.path, s.opts)
 	if err != nil {
 		// t.Errorf("Unable to remove database directory: %s", dirPath)
