@@ -16,7 +16,7 @@ func TestRocksDBStore(t *testing.T) {
 	s := NewRocksDBStore(dbPath())
 	defer s.Close()
 
-	k := uint64(9223372036854775807)
+	k := uint64ToBytes(uint64(9223372036854775807))
 	err := s.Put(k, []byte("world"))
 	ok(t, err)
 
@@ -52,7 +52,8 @@ func TestRocksDBIteration(t *testing.T) {
 func generate(t *testing.T, s *RocksDBStore, start, count int) {
 	for i := start; i < (start + count); i++ {
 		v := fmt.Sprintf("%v", i)
-		err := s.Put(uint64(i), []byte(v))
+		k := uint64ToBytes(uint64(i))
+		err := s.Put(k, []byte(v))
 		ok(t, err)
 	}
 }

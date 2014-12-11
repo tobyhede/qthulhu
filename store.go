@@ -29,7 +29,7 @@ func (s *PartitionStore) LastIndex() (uint64, error) {
 }
 
 func (s *PartitionStore) GetLog(index uint64, log *raft.Log) error {
-	v, err := s.rstore.Get(index)
+	v, err := s.rstore.Get(uint64ToBytes(index))
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *PartitionStore) DeleteRange(min, max uint64) error {
 }
 
 func (s *PartitionStore) Set(key []byte, val []byte) error {
-	err := s.rstore.Set(key, val)
+	err := s.rstore.Put(key, val)
 	return err
 }
 

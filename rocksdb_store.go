@@ -2,9 +2,6 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
-	"bytes"
-	"encoding/binary"
-	"encoding/gob"
 	"fmt"
 
 	"github.com/hashicorp/raft"
@@ -59,12 +56,7 @@ func NewRocksDBStore(path string) *RocksDBStore {
 	return s
 }
 
-func (s *RocksDBStore) Put(k uint64, v []byte) error {
-	err := s.db.Put(s.wopts, uint64ToBytes(k), v)
-	return err
-}
-
-func (s *RocksDBStore) Set(k, v []byte) error {
+func (s *RocksDBStore) Put(k, v []byte) error {
 	err := s.db.Put(s.wopts, k, v)
 	return err
 }
@@ -81,8 +73,8 @@ func (s *RocksDBStore) PutBatch(logs []*raft.Log) error {
 	return err
 }
 
-func (s *RocksDBStore) Get(k uint64) ([]byte, error) {
-	v, err := s.db.Get(s.ropts, uint64ToBytes(k))
+func (s *RocksDBStore) Get(k []byte) ([]byte, error) {
+	v, err := s.db.Get(s.ropts, k)
 	// inspect(string(v))
 	return v, err
 }
@@ -125,25 +117,4 @@ func (s *RocksDBStore) Delete() {
 		// t.Errorf("Unable to remove database directory: %s", dirPath)
 	}
 	// err := os.RemoveAll(s.path)
-}
-
-func uint64ToBytes(i uint64) []byte {
-	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, i)
-	return b
-}
-
-func bytesToUint64(b []byte) uint64 {
-	return binary.BigEndian.Uint64(b)
-}
-
-func encode(log *raft.Log) ([]bytes, error) {
-	b := new(bytes.Buffer)
-	enc := gob.NewEncoder(b)
-
-	err := enc.Encode(log)
-	if err != nil {
-		return err
-	}
-	return b.Bytes(), nil
 }
