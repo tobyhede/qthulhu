@@ -1,7 +1,6 @@
 package qthulhu
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -42,8 +41,8 @@ func Raft(conf *Config) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logStore, err := NewPartitionStore(conf.LogStorePath())
-	stableStore, err := NewPartitionStore(conf.StableStorePath())
+	logStore, err := NewPartitionStore(conf.LogStorePath(), conf.Logger)
+	stableStore, err := NewPartitionStore(conf.StableStorePath(), conf.Logger)
 	peerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
 
 	defer func() {
@@ -62,12 +61,12 @@ func Raft(conf *Config) {
 	// NewRaft(conf *Config, fsm FSM, logs LogStore, stable StableStore, snaps SnapshotStore, peerStore PeerStore, trans Transport)
 
 	fsm := NewFSM()
-	fmt.Println("Transport: %v", trans)
-	fmt.Println("FSM: %v", fsm)
-	fmt.Println("LogStore: %v", logStore)
-	fmt.Println("StableStore: %v", stableStore)
-	fmt.Println("PeerStore: %v", peerStore)
-	fmt.Println("SnapshotStore: %v", snapshotStore)
+	// fmt.Println("Transport: %v", trans)
+	// fmt.Println("FSM: %v", fsm)
+	// fmt.Println("LogStore: %v", logStore)
+	// fmt.Println("StableStore: %v", stableStore)
+	// fmt.Println("PeerStore: %v", peerStore)
+	// fmt.Println("SnapshotStore: %v", snapshotStore)
 
 	node, err := raft.NewRaft(conf.Raft, fsm, logStore, stableStore, snapshotStore, peerStore, trans)
 

@@ -1,6 +1,8 @@
 package qthulhu
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/raft"
@@ -8,13 +10,14 @@ import (
 
 var k = uint64ToBytes(uint64(0))
 var v = []byte("helloworld")
+var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
 func TestPartitionStore(t *testing.T) {
 
 }
 
 func TestSetGet(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 
 	err = s.Set(k, v)
@@ -30,7 +33,7 @@ func TestSetGet(t *testing.T) {
 }
 
 func TestSetGetUint64(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 
 	d, err := s.GetUint64(k)
@@ -41,13 +44,17 @@ func TestSetGetUint64(t *testing.T) {
 	err = s.SetUint64(k, v)
 	ok(t, err)
 
+	v = uint64(9237409173409) //duplicate key
+	err = s.SetUint64(k, v)
+	ok(t, err)
+
 	i, err := s.GetUint64(k)
 	ok(t, err)
 	equals(t, i, v)
 }
 
 func TestPartitionStoreFirstIndex(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 
@@ -65,7 +72,7 @@ func TestPartitionStoreFirstIndex(t *testing.T) {
 }
 
 func TestPartitionStoreLastIndex(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 
@@ -86,7 +93,7 @@ func TestPartitionStoreLastIndex(t *testing.T) {
 }
 
 func TestPartitionStoreStoreGetLog(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 	log := raft.Log{
@@ -115,7 +122,7 @@ func TestPartitionStoreStoreGetLog(t *testing.T) {
 }
 
 func TestPartitionStoreDeleteRange(t *testing.T) {
-	s, err := NewPartitionStore(dbPath())
+	s, err := NewPartitionStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 

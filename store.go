@@ -1,15 +1,21 @@
 package qthulhu
 
-import "github.com/hashicorp/raft"
+import (
+	"log"
+
+	"github.com/hashicorp/raft"
+)
 
 type PartitionStore struct {
 	path   string
 	rstore *RocksDBStore
+	logger *log.Logger
 }
 
-func NewPartitionStore(path string) (*PartitionStore, error) {
+func NewPartitionStore(path string, logger *log.Logger) (*PartitionStore, error) {
+	logger.Print("Connecting Store ... ", path)
 	rstore := NewRocksDBStore(path)
-	return &PartitionStore{rstore: rstore}, nil
+	return &PartitionStore{rstore: rstore, logger: logger}, nil
 }
 
 func (s *PartitionStore) Close() error {
@@ -69,6 +75,8 @@ func (s *PartitionStore) Get(key []byte) ([]byte, error) {
 }
 
 func (s *PartitionStore) SetUint64(key []byte, val uint64) error {
+	s.logger.Print(key)
+	s.logger.Print(val)
 	return s.rstore.Put(key, uint64ToBytes(val))
 }
 

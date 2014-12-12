@@ -40,7 +40,7 @@ func NewRocksDBStore(path string) *RocksDBStore {
 	s.ropts.SetFillCache(true)
 
 	s.wopts = gorocks.NewWriteOptions()
-	s.wopts.SetSync(false)
+	s.wopts.SetSync(true)
 
 	s.topts = gorocks.NewTableOptions()
 	s.topts.SetCache(s.cache)
@@ -54,8 +54,7 @@ func NewRocksDBStore(path string) *RocksDBStore {
 }
 
 func (s *RocksDBStore) Put(k, v []byte) error {
-	err := s.db.Put(s.wopts, k, v)
-	return err
+	return s.db.Put(s.wopts, k, v)
 }
 
 func (s *RocksDBStore) StartBatch() *gorocks.WriteBatch {
