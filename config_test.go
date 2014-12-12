@@ -6,11 +6,12 @@ func TestLoadConfig(t *testing.T) {
 	path := "./config.json"
 	config := LoadConfig(path)
 
-	equals(t, config.DataDir, "./data/")
+	equals(t, config.DataDir, "./data/")  //default value
+	equals(t, config.LogStore, "log.log") //overide value
+
 }
 
-func TestDefaultConfig(t *testing.T) {
-	config := DefaultConfig()
-
+func TestLoadDefaultConfig(t *testing.T) {
+	config := LoadDefaultConfig()
 	equals(t, config.DataDir, "./data/")
 }

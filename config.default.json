@@ -1,3 +1,6 @@
 {
-  "DataDir": "./data/"
+  "DataDir":      "./data/",
+  "PeerStore":    "peers.json",
+  "LogStore":     "log.rocksdb",
+  "StableStore":  "stable.rocksdb"
 }

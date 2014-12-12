@@ -2,40 +2,38 @@ package qthulhu
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 )
 
 type Config struct {
-	DataDir string
+	DataDir     string
+	PeerStore   string
+	LogStore    string
+	StableStore string
 }
 
-func DefaultConfig() *Config {
-	return configFromJSON("./config.default.json")
+func LoadDefaultConfig() *Config {
+	conf := &Config{}
+	conf.fromJSON("./config.default.json")
+	return conf
 }
 
 func LoadConfig(path string) *Config {
-	conf := configFromJSON(path)
-	return setDefaultConfig(conf)
-}
-
-func setDefaultConfig(conf *Config) *Config {
-	def := DefaultConfig()
-	conf.DataDir = def.DataDir
+	conf := LoadDefaultConfig()
+	conf.fromJSON(path)
 	return conf
 }
 
-func configFromJSON(path string) *Config {
+func (c *Config) fromJSON(path string) {
 	file, err := os.Open(path)
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Fatalf("Error loading config in %v\n%v", path, err)
 	}
 
 	decoder := json.NewDecoder(file)
-	conf := &Config{}
-	err = decoder.Decode(&conf)
+	err = decoder.Decode(&c)
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Fatalf("Error loading config in %v\n%v", path, err)
 	}
-	return conf
 }
