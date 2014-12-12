@@ -3,5 +3,6 @@ package qthulhu
 import "testing"
 
 func TestRaft(t *testing.T) {
-	Raft()
+	conf := LoadDefaultConfig()
+	Raft(conf)
 }

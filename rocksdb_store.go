@@ -2,7 +2,7 @@ package qthulhu
 
 // "github/tobyhede/gorocks"
 import (
-	"fmt"
+	"log"
 
 	"./../gorocks"
 )
@@ -47,8 +47,7 @@ func NewRocksDBStore(path string) *RocksDBStore {
 
 	db, err := gorocks.Open(path, s.opts)
 	if err != nil {
-		fmt.Println("Open failed: %v", err)
-		panic("Open database failed")
+		log.Fatalf("Error opening database %v\n%v", path, err)
 	}
 	s.db = db
 	return s
@@ -92,10 +91,16 @@ func (s *RocksDBStore) FirstKey() (uint64, error) {
 
 func (s *RocksDBStore) LastKey() (uint64, error) {
 	it := s.Iterator()
-
 	defer it.Close()
+
 	it.SeekToLast()
-	return bytesToUint64(it.Key()), nil
+	err := it.GetError()
+
+	if it.Valid() {
+		return bytesToUint64(it.Key()), err
+	} else {
+		return uint64(0), err
+	}
 }
 
 func (s *RocksDBStore) Close() error {

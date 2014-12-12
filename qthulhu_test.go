@@ -43,7 +43,11 @@ func equals(tb testing.TB, exp, act interface{}) {
 	}
 }
 
-func inspect(i interface{}) {
+func puts(i interface{}) {
 	fmt.Printf("\033[32m%v\033[39m\n", i)
+}
+
+func inspect(i interface{}) {
+	puts(i)
 	fmt.Printf("\033[32m%#v\033[39m\n", i)
 }

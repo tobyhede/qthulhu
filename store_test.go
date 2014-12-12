@@ -33,13 +33,17 @@ func TestSetGetUint64(t *testing.T) {
 	s, err := NewPartitionStore(dbPath())
 	ok(t, err)
 
+	d, err := s.GetUint64(k)
+	assert(t, err != nil, "should have an error")
+	equals(t, d, uint64(0))
+
 	v := uint64(9237409173409)
 	err = s.SetUint64(k, v)
 	ok(t, err)
 
-	d, err := s.GetUint64(k)
+	i, err := s.GetUint64(k)
 	ok(t, err)
-	equals(t, d, v)
+	equals(t, i, v)
 }
 
 func TestPartitionStoreFirstIndex(t *testing.T) {
@@ -64,6 +68,10 @@ func TestPartitionStoreLastIndex(t *testing.T) {
 	s, err := NewPartitionStore(dbPath())
 	ok(t, err)
 	defer s.Close()
+
+	idx, err := s.LastIndex()
+	ok(t, err)
+	equals(t, uint64(0), idx)
 
 	for i := 0; i < 5; i++ {
 		k = uint64ToBytes(uint64(i))

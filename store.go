@@ -74,5 +74,8 @@ func (s *PartitionStore) SetUint64(key []byte, val uint64) error {
 
 func (s *PartitionStore) GetUint64(key []byte) (uint64, error) {
 	v, err := s.rstore.Get(key)
+	if err != nil {
+		return 0, err
+	}
 	return bytesToUint64(v), err
 }
