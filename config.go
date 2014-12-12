@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/hashicorp/raft"
 )
 
 type Config struct {
@@ -13,11 +15,20 @@ type Config struct {
 	LogStore    string
 	StableStore string
 	Snapshots   int
+	IP          string
+	Port        string
+	Raft        *raft.Config
+	Logger      *log.Logger
 }
 
 func LoadDefaultConfig() *Config {
 	conf := &Config{}
 	conf.fromJSON("./config.default.json")
+	conf.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+
+	conf.Raft = raft.DefaultConfig()
+	conf.Raft.ShutdownOnRemove = false
+
 	return conf
 }
 
@@ -41,6 +52,10 @@ func (c *Config) PeerStorePath() string {
 
 func (c *Config) SnapshotDir() string {
 	return c.DataDir
+}
+
+func (c *Config) Address() string {
+	return strings.Join([]string{c.IP, c.Port}, ":")
 }
 
 func (c *Config) fromJSON(path string) {
