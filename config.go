@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -11,6 +12,7 @@ type Config struct {
 	PeerStore   string
 	LogStore    string
 	StableStore string
+	Snapshots   int
 }
 
 func LoadDefaultConfig() *Config {
@@ -25,6 +27,22 @@ func LoadConfig(path string) *Config {
 	return conf
 }
 
+func (c *Config) LogStorePath() string {
+	return c.pathify(c.LogStore)
+}
+
+func (c *Config) StableStorePath() string {
+	return c.pathify(c.StableStore)
+}
+
+func (c *Config) PeerStorePath() string {
+	return c.DataDir
+}
+
+func (c *Config) SnapshotDir() string {
+	return c.DataDir
+}
+
 func (c *Config) fromJSON(path string) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -36,4 +54,8 @@ func (c *Config) fromJSON(path string) {
 	if err != nil {
 		log.Fatalf("Error loading config in %v\n%v", path, err)
 	}
+}
+
+func (c *Config) pathify(s string) string {
+	return strings.Join([]string{c.DataDir, s}, "")
 }

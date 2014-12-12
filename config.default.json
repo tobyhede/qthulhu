@@ -1,6 +1,6 @@
 {
   "DataDir":      "./data/",
-  "PeerStore":    "peers.json",
   "LogStore":     "log.rocksdb",
-  "StableStore":  "stable.rocksdb"
+  "StableStore":  "stable.rocksdb",
+  "Snapshots":    2
 }
