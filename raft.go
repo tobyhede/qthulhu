@@ -34,7 +34,7 @@ func (fsm *FSM) Snapshot() (raft.FSMSnapshot, error) {
 	return nil, nil
 }
 
-func Raft(conf *Config) {
+func Raft(conf *Config) (*raft.Raft, error) {
 
 	conf.Logger.Print(conf.Address())
 	trans, err := raft.NewTCPTransport(conf.Address(), nil, 2, time.Second, nil)
@@ -43,8 +43,9 @@ func Raft(conf *Config) {
 	}
 	logStore, err := NewPartitionStore(conf.LogStorePath(), conf.Logger)
 	stableStore, err := NewPartitionStore(conf.StableStorePath(), conf.Logger)
-	peerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
 
+	// peerStore := conf.PeerStore
+	peerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
 
 	snapshotStore, err := raft.NewFileSnapshotStore(conf.DataDir, conf.Snapshots, os.Stderr)
 	if err != nil {
@@ -64,10 +65,23 @@ func Raft(conf *Config) {
 	// fmt.Println("PeerStore: %v", peerStore)
 	// fmt.Println("SnapshotStore: %v", snapshotStore)
 
+	// Ensure local host is always included if we are in bootstrap mode
+	// if s.config.Bootstrap {
+	// 	peers, err := s.raftPeers.Peers()
+	// 	if err != nil {
+	// 		store.Close()
+	// 		return err
+	// 	}
+	// 	if !raft.PeerContained(peers, trans.LocalAddr()) {
+	// 		s.raftPeers.SetPeers(raft.AddUniquePeer(peers, trans.LocalAddr()))
+	// 	}
+	// }
+
 	node, err := raft.NewRaft(conf.Raft, fsm, logStore, stableStore, snapshotStore, peerStore, trans)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	puts(node)
+	return node, err
 }

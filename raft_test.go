@@ -9,7 +9,9 @@ import (
 func TestRaft(t *testing.T) {
 
 	conf := LoadDefaultConfig()
-	for i := 0; i < 1; i++ {
+	// conf.PeerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
+
+	for i := 0; i < 3; i++ {
 
 		c := *conf
 

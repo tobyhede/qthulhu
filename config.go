@@ -19,6 +19,7 @@ type Config struct {
 	Port        string
 	Raft        *raft.Config
 	Logger      *log.Logger
+	Bootstrap   bool
 }
 
 func LoadDefaultConfig() *Config {

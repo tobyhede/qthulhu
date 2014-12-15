@@ -54,13 +54,7 @@ func NewRocksDBStore(path string) *RocksDBStore {
 }
 
 func (s *RocksDBStore) Put(k, v []byte) error {
-	wopts := gorocks.NewWriteOptions()
-	wopts.SetSync(true)
-	// mutex := sync.Mutex{}
-	// mutex.Lock()
-	err := s.db.Put(wopts, k, v)
-	// mutex.Unlock()
-	return err
+	return s.db.Put(s.wopts, k, v)
 }
 
 func (s *RocksDBStore) StartBatch() *gorocks.WriteBatch {
