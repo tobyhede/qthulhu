@@ -45,10 +45,6 @@ func Raft(conf *Config) {
 	stableStore, err := NewPartitionStore(conf.StableStorePath(), conf.Logger)
 	peerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
 
-	defer func() {
-		logStore.Close()
-		stableStore.Close()
-	}()
 
 	snapshotStore, err := raft.NewFileSnapshotStore(conf.DataDir, conf.Snapshots, os.Stderr)
 	if err != nil {
