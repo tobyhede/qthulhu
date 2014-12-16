@@ -20,7 +20,7 @@ func TestRaft(t *testing.T) {
 		}
 		c.DataDir = fmt.Sprintf("./data/%v/", i)
 
-		Raft(&c)
+		NewRaft(&c)
 	}
 
 	time.Sleep(100 * time.Second)

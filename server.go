@@ -8,9 +8,12 @@ type Server struct {
 }
 
 func NewServer(conf *Config) (*Server, error) {
-	s := &Server{conf: conf}
+	r, err := NewRaft(conf)
+	if err != nil {
 
-	return s, nil
+	}
+	s := &Server{conf: conf, raft: r}
+	return s, err
 }
 
 func (s *Server) Shutdown() error {

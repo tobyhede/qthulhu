@@ -34,9 +34,8 @@ func (fsm *FSM) Snapshot() (raft.FSMSnapshot, error) {
 	return nil, nil
 }
 
-func Raft(conf *Config) (*raft.Raft, error) {
-
-	conf.Logger.Print(conf.Address())
+func NewRaft(conf *Config) (*raft.Raft, error) {
+	// conf.Logger.Print(conf.Address())
 	trans, err := raft.NewTCPTransport(conf.Address(), nil, 2, time.Second, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -78,10 +77,8 @@ func Raft(conf *Config) (*raft.Raft, error) {
 	// }
 
 	node, err := raft.NewRaft(conf.Raft, fsm, logStore, stableStore, snapshotStore, peerStore, trans)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-	puts(node)
 	return node, err
 }
