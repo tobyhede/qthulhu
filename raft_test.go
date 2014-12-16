@@ -10,13 +10,14 @@ func TestRaft(t *testing.T) {
 
 	conf := LoadDefaultConfig()
 	// conf.PeerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
-
-	for i := 0; i < 3; i++ {
+	nodeCount := 3
+	for i := 0; i < nodeCount; i++ {
 
 		c := *conf
 
 		if i == 0 {
-			c.Raft.EnableSingleNode = true
+			c.Bootstrap = true
+			// c.Raft.EnableSingleNode = true
 		}
 		c.DataDir = fmt.Sprintf("./data/%v/", i)
 
