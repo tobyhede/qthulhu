@@ -19,9 +19,11 @@ func TestRaft(t *testing.T) {
 
 		if i == 0 {
 			c.Bootstrap = true
-			// c.Raft.EnableSingleNode = true
 		}
+
+		c.Port = fmt.Sprintf("800%v", i)
 		c.DataDir = fmt.Sprintf("./data/%v/", i)
+
 		n, err := NewRaft(&c)
 		if err != nil {
 			log.Fatal(err)
@@ -29,6 +31,12 @@ func TestRaft(t *testing.T) {
 		nodes = append(nodes, n)
 	}
 
+	leader := nodes[0]
+
+	for _, n := range nodes {
+		// inspect(n.addr)
+		leader.AddPeer(n.addr)
+	}
 	inspect(nodes)
 	time.Sleep(100 * time.Second)
 }

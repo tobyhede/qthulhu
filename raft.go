@@ -3,6 +3,7 @@ package qthulhu
 import (
 	"io"
 	"log"
+	"net"
 	"os"
 	"time"
 
@@ -22,6 +23,7 @@ type Closer interface {
 
 type Raft struct {
 	*raft.Raft
+	addr    net.Addr
 	closers []Closer
 }
 
@@ -53,10 +55,12 @@ func (r *Raft) Close() error {
 
 func NewRaft(conf *Config) (*Raft, error) {
 	// conf.Logger.Print(conf.Address())
+
 	trans, err := raft.NewTCPTransport(conf.Address(), nil, 2, time.Second, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	logStore, err := NewPartitionStore(conf.LogStorePath(), conf.Logger)
 	stableStore, err := NewPartitionStore(conf.StableStorePath(), conf.Logger)
 
@@ -101,5 +105,5 @@ func NewRaft(conf *Config) (*Raft, error) {
 		// log.Fatal(err)
 	}
 	closers := []Closer{logStore, stableStore, trans}
-	return &Raft{node, closers}, err
+	return &Raft{node, trans.LocalAddr(), closers}, err
 }
