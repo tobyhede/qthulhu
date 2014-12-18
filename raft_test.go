@@ -41,5 +41,14 @@ func TestRaft(t *testing.T) {
 		leader.AddPeer(n.addr)
 	}
 
+	// time.Sleep(5 * time.Second)
+
+	WaitForLeader(leader)
+
+	future := leader.Apply([]byte("test"), time.Millisecond)
+	if err := future.Error(); err != nil {
+		t.Fatalf("err: %v", err)
+	}
+
 	time.Sleep(100 * time.Second)
 }

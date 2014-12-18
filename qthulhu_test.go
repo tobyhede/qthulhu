@@ -2,17 +2,57 @@ package qthulhu
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
+	"time"
 )
 
 func dbPath() string {
 	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
 	return filepath.Join(os.TempDir(), f)
+}
+
+type tFn func() (bool, error)
+
+type eFn func(error)
+
+func WaitForTrue(f tFn, e eFn) {
+	retries := 100
+
+	for retries > 0 {
+		time.Sleep(1 * time.Second)
+		retries--
+
+		success, err := f()
+		if success {
+			return
+		}
+
+		if retries == 0 {
+			e(err)
+		}
+	}
+}
+
+func WaitForLeader(r *Raft) {
+
+	f := func() (bool, error) {
+		if leader := r.Leader(); leader != nil {
+			return true, nil
+		}
+		return false, nil
+	}
+	e := func(err error) {
+		log.Fatal("Failed to find leader: %v", err)
+	}
+	WaitForTrue(f, e)
+
+	return
 }
 
 // Test functions From https://github.com/benbjohnson/testing
