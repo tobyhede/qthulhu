@@ -86,16 +86,16 @@ func NewRaft(conf *Config) (*Raft, error) {
 	// fmt.Println("SnapshotStore: %v", snapshotStore)
 
 	// Ensure local host is always included if we are in bootstrap mode
-	if conf.Bootstrap {
-		peers, err := peerStore.Peers()
-		if err != nil {
-			// store.Close()
-			return nil, err
-		}
-		if !raft.PeerContained(peers, trans.LocalAddr()) {
-			peerStore.SetPeers(raft.AddUniquePeer(peers, trans.LocalAddr()))
-		}
-	}
+	// if conf.Bootstrap {
+	// 	peers, err := peerStore.Peers()
+	// 	if err != nil {
+	// 		// store.Close()
+	// 		return nil, err
+	// 	}
+	// 	if !raft.PeerContained(peers, trans.LocalAddr()) {
+	// 		peerStore.SetPeers(raft.AddUniquePeer(peers, trans.LocalAddr()))
+	// 	}
+	// }
 
 	node, err := raft.NewRaft(conf.Raft, fsm, logStore, stableStore, snapshotStore, peerStore, trans)
 	if err != nil {
