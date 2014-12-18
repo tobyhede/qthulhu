@@ -16,12 +16,13 @@ type FSM struct {
 	// state     *StateStore
 }
 
-// type raft interface {
-// 	raft.Raft
-// }
+type Closer interface {
+	Close() (err error)
+}
 
 type Raft struct {
 	*raft.Raft
+	closers []Closer
 }
 
 func NewFSM() *FSM {
@@ -43,10 +44,11 @@ func (fsm *FSM) Snapshot() (raft.FSMSnapshot, error) {
 }
 
 func (r *Raft) Close() error {
-	// r.logStore.Close()
-	// r.stableStore.Close()
-	// r.trans.Close()
-	return nil
+	var err error
+	for _, c := range r.closers {
+		err = c.Close()
+	}
+	return err
 }
 
 func NewRaft(conf *Config) (*Raft, error) {
@@ -98,6 +100,6 @@ func NewRaft(conf *Config) (*Raft, error) {
 		trans.Close()
 		// log.Fatal(err)
 	}
-
-	return &Raft{node}, err
+	closers := []Closer{logStore, stableStore, trans}
+	return &Raft{node, closers}, err
 }
