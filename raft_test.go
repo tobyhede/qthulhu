@@ -2,11 +2,13 @@ package qthulhu
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
 )
 
 func TestRaft(t *testing.T) {
+	var nodes []*Raft
 
 	conf := LoadDefaultConfig()
 	// conf.PeerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)
@@ -20,9 +22,13 @@ func TestRaft(t *testing.T) {
 			// c.Raft.EnableSingleNode = true
 		}
 		c.DataDir = fmt.Sprintf("./data/%v/", i)
-
-		NewRaft(&c)
+		n, err := NewRaft(&c)
+		if err != nil {
+			log.Fatal(err)
+		}
+		nodes = append(nodes, n)
 	}
 
+	inspect(nodes)
 	time.Sleep(100 * time.Second)
 }

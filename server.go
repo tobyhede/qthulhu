@@ -1,10 +1,8 @@
 package qthulhu
 
-import "github.com/hashicorp/raft"
-
 type Server struct {
 	conf *Config
-	raft *raft.Raft
+	raft *Raft
 }
 
 func NewServer(conf *Config) (*Server, error) {
@@ -17,5 +15,6 @@ func NewServer(conf *Config) (*Server, error) {
 }
 
 func (s *Server) Shutdown() error {
+	s.raft.Close()
 	return nil
 }

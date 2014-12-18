@@ -16,6 +16,14 @@ type FSM struct {
 	// state     *StateStore
 }
 
+// type raft interface {
+// 	raft.Raft
+// }
+
+type Raft struct {
+	*raft.Raft
+}
+
 func NewFSM() *FSM {
 	fsm := &FSM{}
 	return fsm
@@ -34,7 +42,14 @@ func (fsm *FSM) Snapshot() (raft.FSMSnapshot, error) {
 	return nil, nil
 }
 
-func NewRaft(conf *Config) (*raft.Raft, error) {
+func (r *Raft) Close() error {
+	// r.logStore.Close()
+	// r.stableStore.Close()
+	// r.trans.Close()
+	return nil
+}
+
+func NewRaft(conf *Config) (*Raft, error) {
 	// conf.Logger.Print(conf.Address())
 	trans, err := raft.NewTCPTransport(conf.Address(), nil, 2, time.Second, nil)
 	if err != nil {
@@ -78,7 +93,11 @@ func NewRaft(conf *Config) (*raft.Raft, error) {
 
 	node, err := raft.NewRaft(conf.Raft, fsm, logStore, stableStore, snapshotStore, peerStore, trans)
 	if err != nil {
-		log.Fatal(err)
+		logStore.Close()
+		stableStore.Close()
+		trans.Close()
+		// log.Fatal(err)
 	}
-	return node, err
+
+	return &Raft{node}, err
 }
