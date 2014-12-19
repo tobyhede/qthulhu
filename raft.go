@@ -1,7 +1,6 @@
 package qthulhu
 
 import (
-	"io"
 	"log"
 	"net"
 	"os"
@@ -9,13 +8,6 @@ import (
 
 	"github.com/hashicorp/raft"
 )
-
-type FSM struct {
-	// logOutput io.Writer
-	// logger    *log.Logger
-	// path      string
-	// state     *StateStore
-}
 
 type Closer interface {
 	Close() (err error)
@@ -25,24 +17,6 @@ type Raft struct {
 	*raft.Raft
 	addr    net.Addr
 	closers []Closer
-}
-
-func NewFSM() *FSM {
-	fsm := &FSM{}
-	return fsm
-}
-
-func (fsm *FSM) Apply(log *raft.Log) interface{} {
-	puts("Apply")
-	inspect(log)
-	return 0
-}
-
-func (fsm *FSM) Restore(io.ReadCloser) error {
-	return nil
-}
-func (fsm *FSM) Snapshot() (raft.FSMSnapshot, error) {
-	return nil, nil
 }
 
 func (r *Raft) Close() error {
@@ -77,7 +51,7 @@ func NewRaft(conf *Config) (*Raft, error) {
 	// puts(conf.PeerStorePath())
 	// NewRaft(conf *Config, fsm FSM, logs LogStore, stable StableStore, snaps SnapshotStore, peerStore PeerStore, trans Transport)
 
-	fsm := NewFSM()
+	fsm := NewFSM("./data/fsm", conf.Logger)
 	// fmt.Println("Transport: %v", trans)
 	// fmt.Println("FSM: %v", fsm)
 	// fmt.Println("LogStore: %v", logStore)

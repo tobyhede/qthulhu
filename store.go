@@ -6,7 +6,10 @@ import (
 	"github.com/hashicorp/raft"
 )
 
+type Store interface{}
+
 type PartitionStore struct {
+	Store
 	path   string
 	rstore *RocksDBStore
 	logger *log.Logger

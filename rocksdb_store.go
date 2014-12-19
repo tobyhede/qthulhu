@@ -7,11 +7,6 @@ import (
 	"./../gorocks"
 )
 
-type KV struct {
-	Key   uint64
-	Value []byte
-}
-
 type RocksDBStore struct {
 	db    *gorocks.DB
 	env   *gorocks.Env
