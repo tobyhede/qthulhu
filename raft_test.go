@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	applyTimeout = 30 * time.Second
+)
+
 func TestRaft(t *testing.T) {
 	var nodes []*Raft
 
@@ -45,7 +49,7 @@ func TestRaft(t *testing.T) {
 
 	WaitForLeader(leader)
 
-	future := leader.Apply([]byte("test"), time.Millisecond)
+	future := leader.Apply([]byte("test"), applyTimeout)
 	if err := future.Error(); err != nil {
 		t.Fatalf("err: %v", err)
 	}

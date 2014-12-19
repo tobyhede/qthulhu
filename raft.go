@@ -51,7 +51,7 @@ func NewRaft(conf *Config) (*Raft, error) {
 	// puts(conf.PeerStorePath())
 	// NewRaft(conf *Config, fsm FSM, logs LogStore, stable StableStore, snaps SnapshotStore, peerStore PeerStore, trans Transport)
 
-	fsm := NewFSM("./data/fsm", conf.Logger)
+	fsm := NewFSM(nil, conf.Logger)
 	// fmt.Println("Transport: %v", trans)
 	// fmt.Println("FSM: %v", fsm)
 	// fmt.Println("LogStore: %v", logStore)

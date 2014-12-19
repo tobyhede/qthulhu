@@ -8,18 +8,36 @@ import (
 )
 
 type FSM struct {
-	store  *Store
+	store  *RocksDBStore
 	logger *log.Logger
 }
 
-func NewFSM(s Store, l *log.Logger) *FSM {
-	return &FSM{store: &s, logger: l}
+type Message struct {
+	Offset []byte
+	Data   []byte
 }
 
-func (fsm *FSM) Apply(log *raft.Log) interface{} {
-	puts("Apply")
-	inspect(log)
-	return 0
+func NewMessage(offset uint64, data []byte) *Message {
+	return &Message{uint64ToBytes(offset), data}
+}
+
+func NewFSM(s *RocksDBStore, l *log.Logger) *FSM {
+	return &FSM{store: s, logger: l}
+}
+
+func (f *FSM) Apply(log *raft.Log) interface{} {
+	var m Message
+
+	if err := decode(log.Data, &m); err != nil {
+		f.logger.Fatalf("Failed to decode data: %v", err)
+		return err
+	}
+
+	if err := f.store.Put(m.Offset, m.Data); err != nil {
+		f.logger.Fatalf("Failed to store data: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (fsm *FSM) Restore(io.ReadCloser) error {
