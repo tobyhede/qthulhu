@@ -9,10 +9,10 @@ import (
 )
 
 type TestStore struct {
-	PartitionStore
+	RaftStore
 }
 
-func NewTestPartitionStore() *TestStore {
+func NewTestRaftStore() *TestStore {
 	return &TestStore{}
 }
 
@@ -30,7 +30,7 @@ func NewRaftLog(data []byte) *raft.Log {
 }
 
 // func newTestFSM() *FSM {
-// 	s := NewTestPartitionStore()
+// 	s := NewTestRaftStore()
 // 	l := NewTestLogger()
 // 	return NewFSM(s, l)
 // }

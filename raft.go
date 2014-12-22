@@ -35,8 +35,8 @@ func NewRaft(conf *Config) (*Raft, error) {
 		log.Fatal(err)
 	}
 
-	logStore, err := NewPartitionStore(conf.LogStorePath(), conf.Logger)
-	stableStore, err := NewPartitionStore(conf.StableStorePath(), conf.Logger)
+	logStore, err := NewRaftStore(conf.LogStorePath(), conf.Logger)
+	stableStore, err := NewRaftStore(conf.StableStorePath(), conf.Logger)
 
 	// peerStore := conf.PeerStore
 	peerStore := raft.NewJSONPeers(conf.PeerStorePath(), trans)

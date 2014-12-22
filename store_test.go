@@ -12,12 +12,12 @@ var k = uint64ToBytes(uint64(0))
 var v = []byte("helloworld")
 var logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 
-func TestPartitionStore(t *testing.T) {
+func TestRaftStore(t *testing.T) {
 
 }
 
 func TestSetGet(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 
 	err = s.Set(k, v)
@@ -29,11 +29,11 @@ func TestSetGet(t *testing.T) {
 
 	v, err := s.Get([]byte("vtha"))
 	equals(t, len(v), 0)
-	equals(t, "Key Not Found", err.Error())
+	equals(t, "not found", err.Error())
 }
 
 func TestSetGetUint64(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 
 	d, err := s.GetUint64(k)
@@ -53,8 +53,8 @@ func TestSetGetUint64(t *testing.T) {
 	equals(t, i, v)
 }
 
-func TestPartitionStoreFirstIndex(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+func TestRaftStoreFirstIndex(t *testing.T) {
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 
@@ -71,8 +71,8 @@ func TestPartitionStoreFirstIndex(t *testing.T) {
 	}
 }
 
-func TestPartitionStoreLastIndex(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+func TestRaftStoreLastIndex(t *testing.T) {
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 
@@ -92,8 +92,8 @@ func TestPartitionStoreLastIndex(t *testing.T) {
 
 }
 
-func TestPartitionStoreStoreGetLog(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+func TestRaftStoreStoreGetLog(t *testing.T) {
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 	log := raft.Log{
@@ -121,8 +121,8 @@ func TestPartitionStoreStoreGetLog(t *testing.T) {
 	equals(t, getted.Index, uint64(1))
 }
 
-func TestPartitionStoreDeleteRange(t *testing.T) {
-	s, err := NewPartitionStore(dbPath(), logger)
+func TestRaftStoreDeleteRange(t *testing.T) {
+	s, err := NewRaftStore(dbPath(), logger)
 	ok(t, err)
 	defer s.Close()
 
@@ -142,7 +142,7 @@ func TestPartitionStoreDeleteRange(t *testing.T) {
 	equals(t, last, min)
 
 	d, err := s.Get(uint64ToBytes(max))
-	ok(t, err)
-	equals(t, d, 1)
+    equals(t, "not found", err.Error())
+    equals(t, d, []byte(nil))
 
 }
