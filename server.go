@@ -1,20 +1,31 @@
 package qthulhu
 
-type Server struct {
-	conf *Config
-	raft *Raft
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func hello(c *gin.Context) {
+	name := c.Param("name")
+	c.String(http.StatusOK, "Hello %s", name)
 }
 
-func NewServer(conf *Config) (*Server, error) {
-	r, err := NewRaft(conf)
-	if err != nil {
-
-	}
-	s := &Server{conf: conf, raft: r}
-	return s, err
+func append(c *gin.Context) {
+	// p := c.Param("partition")
+	// c.String(http.StatusOK, "Hello %s", name)
 }
 
-func (s *Server) Shutdown() error {
-	s.raft.Close()
-	return nil
+func list(c *gin.Context) {
+	p := c.Param("partition")
+	c.String(http.StatusOK, "%s", p)
+}
+
+func main() {
+	router := gin.Default()
+	// router.GET("/hello", hello)
+	router.GET("/:partition", list)
+	router.PUT("/:partition/append", append)
+
+	router.Run(":8080")
 }

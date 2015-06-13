@@ -2,27 +2,24 @@ package qthulhu
 
 import (
 	"fmt"
-	"log"
-	"math/rand"
-	"os"
+
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
 	"time"
-
-	"github.com/hashicorp/raft"
 )
 
 // Test functions From https://github.com/benbjohnson/testing
+
 // assert fails the test if the condition is false.
-func assert(tb testing.TB, condition bool, msg string, v ...interface{}) {
-	if !condition {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("\033[31m%s:%d: "+msg+"\033[39m\n\n", append([]interface{}{filepath.Base(file), line}, v...)...)
-		tb.FailNow()
-	}
-}
+// func assert(tb testing.TB, condition bool, msg string, v ...interface{}) {
+// 	if !condition {
+// 		_, file, line, _ := runtime.Caller(1)
+// 		// fmt.Printf("\033[31m%s:%d: "+msg+"\033[39m\n\n", append([]interface{}{filepath.Base(file), line}, v...)...)
+// 		tb.FailNow()
+// 	}
+// }
 
 // ok fails the test if an err is not nil.
 func ok(tb testing.TB, err error) {
@@ -51,11 +48,6 @@ func inspect(i interface{}) {
 	fmt.Printf("\033[32m%#v\033[39m\n", i)
 }
 
-func dbPath() string {
-	f := fmt.Sprintf("qthulhu-test-%d", rand.Int())
-	return filepath.Join(os.TempDir(), f)
-}
-
 type tFn func() (bool, error)
 
 type eFn func(error)
@@ -75,34 +67,5 @@ func WaitForTrue(f tFn, e eFn) {
 		if retries == 0 {
 			e(err)
 		}
-	}
-}
-
-func WaitForLeader(r *Raft) {
-
-	f := func() (bool, error) {
-		if leader := r.Leader(); leader != nil {
-			return true, nil
-		}
-		return false, nil
-	}
-	e := func(err error) {
-		log.Fatal("Failed to find leader: %v", err)
-	}
-	WaitForTrue(f, e)
-
-	return
-}
-
-func NewTestLogger() *log.Logger {
-	return log.New(os.Stdout, "", 1)
-}
-
-func NewTestRaftLog(data []byte) *raft.Log {
-	return &raft.Log{
-		Index: 1,
-		Term:  1,
-		Type:  raft.LogCommand,
-		Data:  data,
 	}
 }
